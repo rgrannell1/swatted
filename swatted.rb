@@ -1,23 +1,51 @@
 
+require 'uri'
 require "rugged"
 require 'github_api'
 
 
 
 
-here   = Dir.pwd
-repo   = Rugged::Repository.new(here)
 
-remote = repo.remotes.map {|remote| File.basename(remote.url)}
+def loadCredentials(fpath)
+
+	contents = IO.readlines(fpath)
+
+	{
+		:username => contents[0].chop,
+		:password => contents[1].chop
+	}
+
+end
+
+def infer_github_details()
+
+	repo = Rugged::Repository.new(Dir.pwd)
+	urls = repo.remotes
+		.select {|remote| URI.parse(remote.url).host == "github.com"}
+		.map    {|remote| remote.url}
+
+	details = urls.map do |url|
+
+		parts = url.split(File::SEPARATOR)
+
+		{
+			:username => parts[-2],
+			:reponame => parts[-1].sub(/.git$/, "")
+		}
+
+	end
+
+	raise "No remote repositories found." if details.length == 0
+	details[0]
+
+end
 
 
 
 
 
-credentials = {
-	:username => IO.readlines(".credentials")[0].chop,
-	:password => IO.readlines(".credentials")[1].chop
-}
+puts infer_github_details()
 
 
 
