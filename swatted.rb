@@ -122,12 +122,25 @@ def list_tags (git, github, details)
 
 	walker.reset
 
-	git.references.map("refs/tags/*") do |ref|
-		{
-			:time => git.lookup(ref.target.oid).target.time.to_time.to_i
-		}
+
+
+
+
+	tags_refs = git.references.select do |ref|
+		/refs\/tags\//.match(ref.name)
 	end
-	a
+
+	tags_refs.map do |ref|
+
+		target_commit = git.lookup(ref.target.oid).target
+
+		{
+			:time => target_commit.time.to_time.to_i,
+			:sha  => target_commit.oid,
+			:name => File.basename(ref.name)
+		}
+
+	end
 
 end
 
