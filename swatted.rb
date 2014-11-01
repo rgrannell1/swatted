@@ -86,6 +86,17 @@ end
 
 
 
+
+
+=begin
+
+	list_tags :: Github x { :username => string, :reponame => string }
+
+	Return the name, sha id, and creation date of each tag in the remote
+	repository.
+
+=end
+
 def list_tags (github, details)
 
 	commits = (github.repos.commits.all 'rgrannell1', 'kea').map do |commit|
@@ -104,8 +115,6 @@ def list_tags (github, details)
 	end
 
 end
-
-list_tags(auth_github(), infer_github_details())
 
 
 
