@@ -15,7 +15,7 @@ require "github_api"
 
 =end
 
-def load_credentials(fpath = File.join(Dir.pwd, ".credentials"))
+def load_credentials (fpath = File.join(Dir.pwd, ".credentials"))
 
 	contents = IO.readlines(fpath)
 
@@ -39,7 +39,7 @@ end
 
 =end
 
-def infer_github_details(dpath = Dir.pwd)
+def infer_github_details (dpath = Dir.pwd)
 
 	repo = Rugged::Repository.new(dpath)
 	urls = repo.remotes
@@ -62,12 +62,50 @@ def infer_github_details(dpath = Dir.pwd)
 
 end
 
+
+
+
+
 =begin
 
+	auth_github :: string x string -> Github
 
+	Create a (possibly authenticated) github instance.
 
 =end
 
+def auth_github(username = "", password = "")
+
+	if username.length * password.length == 0
+		Github.new
+	else
+		Github.new login: credentials[:username], password: credentials[:password]
+	end
+
+end
+
+
+
+def list_tags (github, details)
+
+	commits = (github.repos.commits.all 'rgrannell1', 'kea').map do |commit|
+		{
+			:sha  => commit.sha,
+			:date => commit.commit.author.date
+		}
+	end
+
+	(github.repos.tags details[:username], details[:reponame]).map do |tag|
+		{
+			:sha  => tag.commit.sha,
+			:name => tag.name,
+			:date => commits.select {|commit| tag[:sha] == commit[:sha]}.first[:date]
+		}
+	end
+
+end
+
+list_tags(auth_github(), infer_github_details())
 
 
 
@@ -75,18 +113,9 @@ end
 
 
 
-
-
-
-github = Github.new login: credentials[:username], password: credentials[:password]
 issues = Github::Client::Issues.new
 
-releases = (github.repos.tags 'rgrannell1', 'kea').map do |tag|
-	{
-		:commit_sha => tag.commit.sha,
-		:name       => tag.name
-	}
-end
+
 
 closed = (issues.list user: 'rgrannell1', repo: 'kea', state: 'closed').map do |issue|
 	{
@@ -96,9 +125,3 @@ closed = (issues.list user: 'rgrannell1', repo: 'kea', state: 'closed').map do |
 	}
 end
 
-commits = (github.repos.commits.all 'rgrannell1', 'kea').map do |commit|
-	{
-		:sha  => commit.sha,
-		:date => commit.commit.author.date
-	}
-end
