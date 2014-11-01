@@ -1,13 +1,21 @@
 
-require 'uri'
+require "uri"
 require "rugged"
-require 'github_api'
+require "github_api"
 
 
 
 
 
-def loadCredentials(fpath)
+=begin
+
+	load_credentials :: string -> { :username => string, :password => string }
+
+	Load github credentials from an external file.
+
+=end
+
+def load_credentials(fpath = File.join(Dir.pwd, ".credentials"))
 
 	contents = IO.readlines(fpath)
 
@@ -18,9 +26,22 @@ def loadCredentials(fpath)
 
 end
 
-def infer_github_details()
 
-	repo = Rugged::Repository.new(Dir.pwd)
+
+
+
+=begin
+
+	infer_github_details :: string -> { :username => string, :reponame => string }
+
+	Given the path to a local sourcecode repository, infer the username
+	and reponame used on github as a remote.
+
+=end
+
+def infer_github_details(dpath = Dir.pwd)
+
+	repo = Rugged::Repository.new(dpath)
 	urls = repo.remotes
 		.select {|remote| URI.parse(remote.url).host == "github.com"}
 		.map    {|remote| remote.url}
@@ -41,11 +62,17 @@ def infer_github_details()
 
 end
 
+=begin
+
+
+
+=end
 
 
 
 
-puts infer_github_details()
+
+
 
 
 
