@@ -1,6 +1,11 @@
 
 require "docopt"
-require "swatted"
+require "Swatted"
+
+
+
+
+
 
 doc = <<DOCOPT
 
@@ -8,16 +13,14 @@ NAME:
 	swatted - list github issues closed since last release.
 
 USAGE:
-	#{__FILE__} <repo> <tag> --username=<username>
+	#{__FILE__} [<tag>]
 
 DESCRIPTION:
-
 	Swatted returns the github issues closed since a given version of
 	a repository.
 
 OPTIONS:
-	<repo> The name of a github repository.
-
+	<tag>
 
 DOCOPT
 
