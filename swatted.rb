@@ -123,8 +123,10 @@ def list_tags (git, github, details)
 	walker.reset
 
 
-
-
+	repo.references.each("refs/tags/*") do |ref|
+		puts ref.name
+	end
+	a
 
 	(github.repos.tags details[:username], details[:reponame]).map do |tag|
 		{
