@@ -102,13 +102,17 @@ end
 
 =begin
 
-	list_tags :: Github x Details -> [{:sha => string, :name => string, :date => string}]
+	list_tags :: Git -> [Tag]
 
 	Return the name, sha id, and creation date of each tag.
 
+	@param git. A connection to a local git repository.
+
+	@return an array of tags.
+
 =end
 
-def list_tags (git, github, details)
+def list_tags (git)
 
 	walker = Rugged::Walker.new(git)
 	walker.push(git.head.target_id)
@@ -148,6 +152,14 @@ end
 =begin
 
 	most_recent_tag :: [Tag] -> Tag
+	where
+		Tag <- {:sha => string,   :name => string,   :date => number}
+
+	Get the most recently created tag.
+
+	@param tags. An array of tags.
+
+	@return A single tag.
 
 =end
 
@@ -168,7 +180,16 @@ end
 
 =begin
 
-	list_closed_issues :: Github x Details
+	list_closed_issues :: Github x Details -> [Issue],
+	where
+		Github is a github connection.
+		Details
+		Issue <- {:title => string, :number => string, :closed_at => number}
+
+	@param github. A github object.
+	@param details.
+
+	@return An array of github issues.
 
 =end
 
@@ -192,7 +213,15 @@ end
 
 =begin
 
-	filter_closed_issues :: number x [Tag] -> [Tag]
+	filter_closed_issues :: Tag x [Issue] -> [Issue],
+	where
+		Tag   <- {:sha => string,   :name => string,   :date => number}
+		Issue <- {:title => string, :number => string, :closed_at => number}
+
+	@param tag.    The most recent tag created.
+	@param issues. An array of github issues.
+
+	@return An array of github issues.
 
 =end
 
@@ -207,24 +236,28 @@ end
 
 
 
+def format_issues (issues)
+
+end
+
+
+
+
+
 def main (args)
 
 	github  = github_conn()
-	git     = git_conn("/home/ryan/Code/kea.R")
+	git     = git_conn "/home/ryan/Code/kea.R"
 
 
-	details = infer_github_details(git)
+	details = infer_github_details git
 
-
-
-
-
-	tags    = list_tags(git, github, details)
-	closed  = list_closed_issues(github, details)
+	tags    = list_tags git, github, details
+	closed  = list_closed_issues github, details
 
 	changed = filter_closed_issues(most_recent_tag(tags), closed)
 
-	puts changed
+	format_issues changed
 
 end
 
