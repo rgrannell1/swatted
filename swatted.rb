@@ -1,5 +1,6 @@
 
 require "uri"
+require "time"
 require "rugged"
 require "github_api"
 
@@ -39,9 +40,8 @@ end
 
 =end
 
-def infer_github_details (dpath = Dir.pwd)
+def infer_github_details (repo)
 
-	repo = Rugged::Repository.new(dpath)
 	urls = repo.remotes
 		.select {|remote| URI.parse(remote.url).host == "github.com"}
 		.map    {|remote| remote.url}
@@ -68,13 +68,13 @@ end
 
 =begin
 
-	auth_github :: string x string -> Github
+	github_conn :: string x string -> Github
 
 	Create a (possibly authenticated) github instance.
 
 =end
 
-def auth_github(username = "", password = "")
+def github_conn(username = "", password = "")
 
 	if username.length * password.length == 0
 		Github.new
@@ -90,21 +90,41 @@ end
 
 =begin
 
-	list_tags :: Github x { :username => string, :reponame => string }
+=end
 
-	Return the name, sha id, and creation date of each tag in the remote
-	repository.
+def git_conn (dpath = Dir.pwd)
+	Rugged::Repository.new(dpath)
+end
+
+
+
+
+
+=begin
+
+	list_tags :: Github x Details -> [{:sha => string, :name => string, :date => string}]
+
+	Return the name, sha id, and creation date of each tag.
 
 =end
 
-def list_tags (github, details)
+def list_tags (git, github, details)
 
-	commits = (github.repos.commits.all 'rgrannell1', 'kea').map do |commit|
+	walker = Rugged::Walker.new(git)
+	walker.push(git.head.target_id)
+
+	commits = walker.map do |commit|
 		{
-			:sha  => commit.sha,
-			:date => commit.commit.author.date
+			:sha  => commit.oid,
+			:date => commit.time.to_time.to_i
 		}
 	end
+
+	walker.reset
+
+
+
+
 
 	(github.repos.tags details[:username], details[:reponame]).map do |tag|
 		{
@@ -120,17 +140,64 @@ end
 
 
 
+=begin
 
+	list_closed_issues :: Github x Details
 
-issues = Github::Client::Issues.new
+=end
 
+def list_closed_issues (github, details)
 
+	issues = Github::Client::Issues.new
 
-closed = (issues.list user: 'rgrannell1', repo: 'kea', state: 'closed').map do |issue|
-	{
-		:title     => issue.title,
-		:number    => issue.number,
-		:closed_at => issue.closed_at
-	}
+	closed = (issues.list user: details[:username], repo: details[:reponame], state: 'closed').map do |issue|
+		{
+			:title     => issue.title,
+			:number    => issue.number,
+			:closed_at => issue.closed_at
+		}
+	end
+
 end
 
+
+
+
+
+=begin
+
+	filter_closed_issues :: number x [Tag] -> [Tag]
+
+=end
+
+def filter_closed_issues (posix, tags)
+	tags.select do |tag|
+		Date.parse(tag.date).to_time.to_i > posix
+	end
+end
+
+
+
+
+def main (args)
+
+	github  = github_conn()
+	git     = git_conn("/home/ryan/Code/kea.R")
+
+
+	details = infer_github_details(git)
+
+
+
+
+
+	#closed  = list_closed_issues(github, details)
+	tags = list_tags(git, github, details)
+
+	#put tags
+
+	#put closed
+
+end
+
+main({})
