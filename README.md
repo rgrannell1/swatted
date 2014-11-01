@@ -1,0 +1,8 @@
+
+# swatted
+
+## Installation
+
+## Usage
+
+## Licence
