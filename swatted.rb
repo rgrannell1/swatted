@@ -126,9 +126,8 @@ def list_tags (git, github, details)
 
 
 
-	tags_refs = git.references.select do |ref|
-		/refs\/tags\//.match(ref.name)
-	end
+
+	tags_refs = git.references.select {|ref| /refs\/tags\//.match(ref.name)}
 
 	tags_refs.map do |ref|
 
@@ -144,6 +143,25 @@ def list_tags (git, github, details)
 
 end
 
+
+
+=begin
+
+	most_recent_tag :: [Tag] -> Tag
+
+=end
+
+def most_recent_tag (tags)
+
+	most_recent = tags.inject({:time => -1}) {|acc, tag|
+		tag[:time] > acc[:time] ? tag : acc
+	}
+
+	raise "no previous releases" if most_recent[:time] == -1
+
+	most_recent
+
+end
 
 
 
@@ -162,7 +180,7 @@ def list_closed_issues (github, details)
 		{
 			:title     => issue.title,
 			:number    => issue.number,
-			:closed_at => issue.closed_at
+			:closed_at => Date.parse(issue[:closed_at]).to_time.to_i
 		}
 	end
 
@@ -178,10 +196,12 @@ end
 
 =end
 
-def filter_closed_issues (posix, tags)
-	tags.select do |tag|
-		Date.parse(tag.date).to_time.to_i > posix
+def filter_closed_issues (tag, issues)
+
+	issues.select do |issue|
+		issue[:closed_at] > tag[:time]
 	end
+
 end
 
 
@@ -199,12 +219,12 @@ def main (args)
 
 
 
-	#closed  = list_closed_issues(github, details)
-	tags = list_tags(git, github, details)
+	tags    = list_tags(git, github, details)
+	closed  = list_closed_issues(github, details)
 
-	#put tags
+	changed = filter_closed_issues(most_recent_tag(tags), closed)
 
-	#put closed
+	puts changed
 
 end
 
