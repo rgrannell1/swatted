@@ -122,19 +122,12 @@ def list_tags (git, github, details)
 
 	walker.reset
 
-
-	repo.references.each("refs/tags/*") do |ref|
-		puts ref.name
-	end
-	a
-
-	(github.repos.tags details[:username], details[:reponame]).map do |tag|
+	git.references.map("refs/tags/*") do |ref|
 		{
-			:sha  => tag.commit.sha,
-			:name => tag.name,
-			:date => commits.select {|commit| tag[:sha] == commit[:sha]}.first[:date]
+			:time => git.lookup(ref.target.oid).target.time.to_time.to_i
 		}
 	end
+	a
 
 end
 
