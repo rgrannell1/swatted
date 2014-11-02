@@ -95,7 +95,6 @@ def list_tags (git)
 
 	walker.reset
 
-
 	tags_refs = git.references.select {|ref| /refs\/tags\//.match(ref.name)}
 	tags_refs.map do |ref|
 
@@ -215,16 +214,16 @@ end
 
 =end
 
-def stringify_issues (issues, format)
+def stringify_issues (issues, flag)
 
-	if format[:yaml]
-		issues.to_yaml
-	elif format[:json]
-		issues.to_json
-	elif format[:pretty]
-		issues.to_json
-	elif format[:changelog]
-
+	if flag[:yaml]
+		puts issues.to_yaml
+	elsif flag[:json]
+		puts issues.to_json
+	elsif flag[:pretty]
+		puts issues.to_json
+	elsif flag[:changelog]
+		puts issues.to_json
 	end
 
 end
@@ -243,10 +242,10 @@ def main (args)
 	changed = filter_closed_issues most_recent_tag(tags), closed
 
 	stringify_issues changed, {
-		:json      => args["-j"] or args["--json"],
-		:yaml      => args["-y"] or args["--yaml"],
-		:pretty    => args["-p"] or args["--pretty"],
-		:changelog => args["-c"] or args["--changelog"]
+		:json      => (args["-j"] or args["--json"]),
+		:yaml      => (args["-y"] or args["--yaml"]),
+		:pretty    => (args["-p"] or args["--pretty"]),
+		:changelog => (args["-c"] or args["--changelog"])
 	}
 
 end
