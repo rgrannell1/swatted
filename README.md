@@ -5,9 +5,13 @@ List all the bugs you've swatted since your last release.
 
 <img src="example.gif">
 
-Swatted makes it easier to write thorough changelogs by automatically finding issues.
+Swatted can output recently closed issues in machine-consumable formats, or automatically draft your changelog for you.
 
 ## Installation
+
+```bash
+wget -q -O - https://raw.githubusercontent.com/rgrannell1/swatted/master/install.sh | bash
+```
 
 ## Usage
 
