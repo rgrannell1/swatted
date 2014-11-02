@@ -150,7 +150,7 @@ end
 	where
 		Github is a github wrapper.
 		Details
-		Issue <- {:title => string, :number => string, :closed_at => number}
+		Issue <- {:title => string, :number => number, :closed_at => number}
 
 	@param github. A github object.
 	@param details.
