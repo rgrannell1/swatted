@@ -42,6 +42,7 @@ def get_remote_details (repo)
 	else
 		details[0]
 	end
+
 end
 
 
@@ -53,13 +54,12 @@ def github_wrapper()
 
 	begin
 		Github.new
-		rescue Exception => err
+	rescue Exception => err
 
-			puts "an error occurred while creating a github wrapper object"
-			puts err.message
-			exit 1
+		puts "an error occurred while creating a github wrapper object"
+		puts err.message
+		exit 1
 
-		end
 	end
 
 end
@@ -81,13 +81,12 @@ def git_wrapper (dpath = Dir.pwd)
 
 	begin
 		Rugged::Repository.new(dpath)
-		rescue Exception => err
+	rescue Exception => err
 
 			puts "an error occurred while opening .git repository for #{dpath}"
 			puts err.message
 			exit 1
 
-		end
 	end
 
 end
@@ -110,7 +109,7 @@ end
 
 def list_tags (git)
 
-	IS_TAG = /refs\/tags\//
+	is_tag = /refs\/tags\//
 
 	walker = Rugged::Walker.new(git)
 	walker.push(git.head.target_id)
@@ -126,7 +125,7 @@ def list_tags (git)
 
 	git
 	.references
-	.select {|ref| IS_TAG.match(ref.name)}
+	.select {|ref| is_tag.match(ref.name)}
 	.map    {|ref|
 
 		target_commit = git.lookup(ref.target.oid).target
