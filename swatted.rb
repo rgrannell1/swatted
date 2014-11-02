@@ -242,7 +242,7 @@ end
 
 
 def validate_args (args)
-
+	// validateme
 end
 
 
@@ -253,7 +253,7 @@ def main (args)
 	validate_args(args)
 
 	github  = github_conn()
-	git     = git_conn "/home/ryan/Code/kea.R"
+	git     = git_conn
 
 	tags    = list_tags git
 	closed  = list_closed_issues github, infer_github_details(git)
