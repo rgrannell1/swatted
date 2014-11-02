@@ -282,7 +282,7 @@ def stringify_issues (issues, config, template)
 		puts issues.to_json
 	else config[:changelog] or config[:template] or true
 		puts issues.map {|row|
-			template % {number => row[:number], title => row[:title]}
+			template % {:number => row[:number], :title => row[:title]}
 		}.join('\n')
 	end
 
