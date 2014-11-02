@@ -317,6 +317,6 @@ def main (args)
 		:template  => !args["--template"].nil?
 
 	},
-	args[:template] ||= "Closed #%<number> ('<title>')"
+	args[:template] ||= "Closed #%<number> ('%<title>')"
 
 end
