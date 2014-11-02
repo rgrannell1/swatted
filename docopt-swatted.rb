@@ -13,7 +13,7 @@ NAME:
 	swatted - list github issues closed since last release.
 
 USAGE:
-	#{__FILE__} [<tag>]
+	#{__FILE__} [ (-j|--json) | (-y|--yaml) | (-p | --pretty) ] -- [<tag>]
 
 DESCRIPTION:
 	Swatted returns the github issues closed since a given version of

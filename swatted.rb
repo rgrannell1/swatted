@@ -3,8 +3,8 @@ require "uri"
 require "time"
 require "rugged"
 require "github_api"
-
-
+require 'json'
+require 'yaml'
 
 
 
@@ -113,6 +113,8 @@ end
 
 
 
+
+
 =begin
 
 	most_recent_tag :: [Tag] -> Tag
@@ -199,9 +201,29 @@ end
 
 
 
+=begin
 
-def format_issues (issues)
-	puts issues
+	stringify_issues :: [Issue] -> string,
+	where
+		Issue <- {:title => string, :number => string, :closed_at => number}
+
+	format a list of issues as a human or machine readable string.
+
+	@param issues. An array of github issues.
+
+	@return a string.
+
+=end
+
+def stringify_issues (issues, format)
+
+	if format[:yaml]
+		puts issues.to_yaml
+	elif format[:json]
+		puts issues.to_json
+	end
+
+
 end
 
 
@@ -213,15 +235,14 @@ def main (args)
 	github  = github_conn()
 	git     = git_conn "/home/ryan/Code/kea.R"
 
-
-	details = infer_github_details git
-
 	tags    = list_tags git
-	closed  = list_closed_issues github, details
+	closed  = list_closed_issues github, infer_github_details(git)
+	changed = filter_closed_issues most_recent_tag(tags), closed
 
-	changed = filter_closed_issues(most_recent_tag(tags), closed)
-
-	format_issues changed
+	stringify_issues changed, {
+		json: true,
+		yaml: false
+	}
 
 end
 
