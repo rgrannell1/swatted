@@ -110,7 +110,7 @@ end
 
 def list_tags (git)
 
-	is_tag = /refs\/tags\//
+	IS_TAG = /refs\/tags\//
 
 	walker = Rugged::Walker.new(git)
 	walker.push(git.head.target_id)
@@ -124,8 +124,10 @@ def list_tags (git)
 
 	walker.reset
 
-	tags_refs = git.references.select {|ref| is_tag.match(ref.name)}
-	tags_refs.map do |ref|
+	git
+	.references
+	.select {|ref| IS_TAG.match(ref.name)}
+	.map    {|ref|
 
 		target_commit = git.lookup(ref.target.oid).target
 
@@ -134,8 +136,7 @@ def list_tags (git)
 			:sha  => target_commit.oid,
 			:name => File.basename(ref.name)
 		}
-
-	end
+	}
 
 end
 
