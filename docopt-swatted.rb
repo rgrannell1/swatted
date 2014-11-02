@@ -14,16 +14,18 @@ NAME:
 
 USAGE:
 	swatted (-j|--json) | (-y|--yaml) | (-p|--pretty) | (-c|--changelog)
+	swatted (-h|--help|--version)
 
 DESCRIPTION:
 	Swatted returns the github issues closed since a given version of
 	a repository.
 
 OPTIONS:
-	-j --json         Print matching issues in json format.
-	-y --yaml         Print matching issues in yaml format.
-	-p --pretty       Print matching issues in a human readable format (default).
-	-c --changelog    Print matching issues in a format that can be used in changelogs.
+	-j --json              Print matching issues in json format.
+	-y --yaml              Print matching issues in yaml format.
+	-p --pretty            Print matching issues in a human readable format (default).
+	-c --changelog         Print matching issues in a format that can be used in changelogs.
+	-h --help --version    Display this documentation.
 
 DOCOPT
 
