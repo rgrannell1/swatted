@@ -281,7 +281,9 @@ def stringify_issues (issues, config, template)
 	elsif config[:json]
 		puts issues.to_json
 	else config[:changelog] or config[:template] or true
-		puts issues.map {|row| template}.join('\n')
+		puts issues.map {|row|
+			template % {number => row[:number], title => row[:title]}
+		}.join('\n')
 	end
 
 end
@@ -315,6 +317,6 @@ def main (args)
 		:template  => !args["--template"].nil?
 
 	},
-	args[:template] ||= "* Closed ##{row[:number]} ('#{row[:title]}')"
+	args[:template] ||= "Closed #%<number> ('<title>')"
 
 end
