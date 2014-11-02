@@ -22,7 +22,7 @@ def get_remote_details (repo)
 
 	details = repo.remotes
 		.select {|remote| URI.parse(remote.url).host == "github.com"}
-		.map    {|url|
+		.map    {|remote|
 
 			parts = remote.url.split(File::SEPARATOR)
 
