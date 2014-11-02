@@ -175,7 +175,7 @@ def list_closed_issues (github, details)
 
 	rescue Exception => err
 
-		puts "an error occurred while retrieving issues for #{details[:username]}/#{repo: details[:reponame]}:"
+		puts "an error occurred while retrieving issues for #{details[:username]}/#{details[:reponame]}:"
 		puts err.message
 
 	end

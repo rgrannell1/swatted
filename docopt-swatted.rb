@@ -1,8 +1,9 @@
 #!/usr/bin/ruby
 
-require "docopt"
-require "./swatted"
+here = File.expand_path(File.dirname(__FILE__))
 
+require "docopt"
+require File.join(here, "swatted")
 
 
 
