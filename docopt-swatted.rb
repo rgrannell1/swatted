@@ -1,7 +1,6 @@
 
 require "docopt"
-require "Swatted"
-
+require "./swatted"
 
 
 
@@ -20,6 +19,10 @@ DESCRIPTION:
 	a repository.
 
 OPTIONS:
+	-j --json    Print matching issues in json format.
+	-y --yaml    Print matching issues in yaml format.
+	-p --pretty  Print matching issues in a human readable format (default).
+
 	<tag>
 
 DOCOPT
