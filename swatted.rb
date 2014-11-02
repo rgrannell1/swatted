@@ -218,11 +218,14 @@ end
 def stringify_issues (issues, format)
 
 	if format[:yaml]
-		puts issues.to_yaml
+		issues.to_yaml
 	elif format[:json]
-		puts issues.to_json
-	end
+		issues.to_json
+	elif format[:pretty]
+		issues.to_json
+	elif format[:changelog]
 
+	end
 
 end
 
@@ -240,15 +243,10 @@ def main (args)
 	changed = filter_closed_issues most_recent_tag(tags), closed
 
 	stringify_issues changed, {
-		json: true,
-		yaml: false
+		:json      => args["-j"] or args["--json"],
+		:yaml      => args["-y"] or args["--yaml"],
+		:pretty    => args["-p"] or args["--pretty"],
+		:changelog => args["-c"] or args["--changelog"]
 	}
 
 end
-
-
-
-
-
-
-main({})
