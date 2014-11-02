@@ -22,19 +22,25 @@ def infer_github_details (repo)
 
 	details = repo.remotes
 		.select {|remote| URI.parse(remote.url).host == "github.com"}
-		.map    {|remote| remote.url}
 		.map    {|url|
 
-		parts = url.split(File::SEPARATOR)
+			parts = remote.url.split(File::SEPARATOR)
 
-		{
-			:username => parts[-2],
-			:reponame => parts[-1].sub(/.git$/, "")
-		}
+			{
+				:username => parts[-2],
+				:reponame => parts[-1].sub(/.git$/, "")
+			}
 	}
 
-	raise "No github repositories found for #{Dir.pwd}."       if details.length == 0
-	raise "Multiple github repositories found for #{Dir.pwd}." if details.length > 1
+	if details.length == 0
+		puts "No github repositories found for #{Dir.pwd}."
+		exit 1
+	end
+
+	if details.length > 1
+		puts "Multiple github repositories found for #{Dir.pwd}."
+		exit 1
+	end
 
 	details[0]
 
@@ -45,13 +51,13 @@ end
 
 
 
-def github_conn()
+def github_wrapper()
 	Github.new
 end
 
 =begin
 
-	git_conn :: string -> Git
+	git_wrapper :: string -> Git
 
 	Create a wrapper for a local git repository.
 
@@ -62,8 +68,17 @@ end
 
 =end
 
-def git_conn (dpath = Dir.pwd)
-	Rugged::Repository.new(dpath)
+def git_wrapper (dpath = Dir.pwd)
+	begin
+		Rugged::Repository.new(dpath)
+		rescue Exception => err
+
+			puts "an error occurred while opening .git repository for #{dpath}"
+			puts err.message
+			exit 1
+
+		end
+	end
 end
 
 
@@ -117,7 +132,7 @@ end
 
 =begin
 
-	most_recent_tag :: [Tag] -> Tag
+	newest_tag :: [Tag] -> Tag
 	where
 		Tag <- {:sha => string,   :name => string,   :date => number}
 
@@ -129,13 +144,16 @@ end
 
 =end
 
-def most_recent_tag (tags)
+def newest_tag (tags)
 
 	most_recent = tags.inject({:time => -1}) {|acc, tag|
 		tag[:time] > acc[:time] ? tag : acc
 	}
 
-	raise "no previous releases" if most_recent[:time] == -1
+	if most_recent[:time] == -1
+		puts "no previous releases found for #{Dir.pwd}."
+		exit 1
+	end
 
 	most_recent
 
@@ -177,6 +195,7 @@ def list_closed_issues (github, details)
 
 		puts "an error occurred while retrieving issues for #{details[:username]}/#{details[:reponame]}:"
 		puts err.message
+		exit 1
 
 	end
 
@@ -224,25 +243,14 @@ end
 
 =end
 
-def stringify_issues (issues, config)
+def stringify_issues (issues, config, template)
 
 	if config[:yaml]
-
 		puts issues.to_yaml
-
 	elsif config[:json]
-
 		puts issues.to_json
-
-	elsif config[:pretty]
-
-	else config[:changelog] or true
-
-		puts issues
-		.map {|row|
-			config[:template]
-		}.join('\n')
-
+	else config[:changelog] or config[:template] or true
+		puts issues.map {|row| template}.join('\n')
 	end
 
 end
@@ -260,22 +268,23 @@ end
 
 def main (args)
 
-	validate_args(args)
+	validate_args args
 
-	github  = github_conn()
-	git     = git_conn
+	github  = github_wrapper
+	git     = git_wrapper
 
 	tags    = list_tags git
 	closed  = list_closed_issues github, infer_github_details(git)
-	changed = filter_closed_issues most_recent_tag(tags), closed
+	changed = filter_closed_issues newest_tag(tags), closed
 
 	stringify_issues changed, {
+
 		:json      => (args["-j"] or args["--json"]),
 		:yaml      => (args["-y"] or args["--yaml"]),
-		:pretty    => (args["-p"] or args["--pretty"]),
 		:changelog => (args["-c"] or args["--changelog"]),
+		:template  => !args["--template"].nil?
 
-		:template  => args["--changelog"] ||= "* Closed ##{row[:number]} ('#{row[:title]}')"
-	}
+	},
+	args[:template] ||= "* Closed ##{row[:number]} ('#{row[:title]}')"
 
 end
