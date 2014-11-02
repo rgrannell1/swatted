@@ -217,13 +217,22 @@ end
 def stringify_issues (issues, flag)
 
 	if flag[:yaml]
+
 		puts issues.to_yaml
+
 	elsif flag[:json]
+
 		puts issues.to_json
+
 	elsif flag[:pretty]
-		puts issues.to_json
-	elsif flag[:changelog]
-		puts issues.to_json
+
+	else flag[:changelog] or true
+
+		puts issues
+		.map {|row|
+			"* Closed ##{row[:number]} ('#{row[:title]}')"
+		}.join('\n')
+
 	end
 
 end
@@ -232,7 +241,16 @@ end
 
 
 
+def validate_args (args)
+
+end
+
+
+
+
 def main (args)
+
+	validate_args(args)
 
 	github  = github_conn()
 	git     = git_conn "/home/ryan/Code/kea.R"
