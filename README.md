@@ -3,6 +3,10 @@
 
 List all the bugs you've swatted since your last release.
 
+<img src="example.gif">
+
+Swatted 
+
 ## Installation
 
 ## Usage
