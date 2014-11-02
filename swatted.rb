@@ -224,23 +224,23 @@ end
 
 =end
 
-def stringify_issues (issues, flag)
+def stringify_issues (issues, config)
 
-	if flag[:yaml]
+	if config[:yaml]
 
 		puts issues.to_yaml
 
-	elsif flag[:json]
+	elsif config[:json]
 
 		puts issues.to_json
 
-	elsif flag[:pretty]
+	elsif config[:pretty]
 
-	else flag[:changelog] or true
+	else config[:changelog] or true
 
 		puts issues
 		.map {|row|
-			"* Closed ##{row[:number]} ('#{row[:title]}')"
+			config[:template]
 		}.join('\n')
 
 	end
@@ -273,7 +273,9 @@ def main (args)
 		:json      => (args["-j"] or args["--json"]),
 		:yaml      => (args["-y"] or args["--yaml"]),
 		:pretty    => (args["-p"] or args["--pretty"]),
-		:changelog => (args["-c"] or args["--changelog"])
+		:changelog => (args["-c"] or args["--changelog"]),
+
+		:template  => args["--changelog"] ||= "* Closed ##{row[:number]} ('#{row[:title]}')"
 	}
 
 end

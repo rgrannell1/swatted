@@ -5,7 +5,7 @@ List all the bugs you've swatted since your last release.
 
 <img src="example.gif">
 
-Swatted 
+Swatted makes it easier to write thorough changelogs by automatically finding issues.
 
 ## Installation
 

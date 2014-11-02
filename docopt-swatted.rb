@@ -14,7 +14,7 @@ NAME:
 	swatted - list github issues closed since the last release.
 
 USAGE:
-	swatted (-j|--json) | (-y|--yaml) | (-p|--pretty) | (-c|--changelog)
+	swatted (-j|--json) | (-y|--yaml) | (-p|--pretty) | (-c|--changelog=<template>)
 	swatted (-h|--help|--version)
 
 DESCRIPTION:
@@ -24,11 +24,12 @@ DESCRIPTION:
 	or to customise the human-readable text printed.
 
 OPTIONS:
-	-j --json              Print matching issues in json format.
-	-y --yaml              Print matching issues in yaml format.
-	-p --pretty            Print matching issues in a human readable format (default).
-	-c --changelog         Print matching issues in a format that can be used in changelogs.
-	-h --help --version    Display this documentation.
+	-j --json                    Print matching issues in json format.
+	-y --yaml                    Print matching issues in yaml format.
+	-p --pretty                  Print matching issues in a human readable format (default).
+	-c --changelog=<template>    Print matching issues in a format that can be used in changelogs. Template
+	                             is a template string taking two variables: 'title' - the issue title - and 'number' - the issue number.
+	-h --help --version          Display this documentation.
 
 DOCOPT
 
