@@ -38,11 +38,7 @@ DOCOPT
 
 
 begin
-
 	main(Docopt::docopt(doc))
-
 rescue Docopt::Exit => e
-
 	puts e.message
-
 end

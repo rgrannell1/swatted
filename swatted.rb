@@ -32,18 +32,16 @@ def get_remote_details (repo)
 			}
 	}
 
-	if details.length == 0
+	case details
+	when details.length == 0
 		puts "No github repositories found for #{Dir.pwd}."
 		exit 1
-	end
-
-	if details.length > 1
+	when details.length > 1
 		puts "Multiple github repositories found for #{Dir.pwd}."
 		exit 1
+	else
+		details[0]
 	end
-
-	details[0]
-
 end
 
 
@@ -80,6 +78,7 @@ end
 =end
 
 def git_wrapper (dpath = Dir.pwd)
+
 	begin
 		Rugged::Repository.new(dpath)
 		rescue Exception => err
@@ -90,6 +89,7 @@ def git_wrapper (dpath = Dir.pwd)
 
 		end
 	end
+
 end
 
 
@@ -164,10 +164,8 @@ def newest_tag (tags)
 	}
 
 	if tag[:time] == -1
-
 		puts "no previous releases found for #{Dir.pwd}."
 		exit 1
-
 	else
 		tag
 	end
@@ -196,9 +194,8 @@ def list_closed_issues (github, details)
 
 	begin
 
-		issues = Github::Client::Issues.new
-
-		closed = (issues.list user: details[:username], repo: details[:reponame], state: 'closed').map {|issue|
+		(Github::Client::Issues.new.list user: details[:username], repo: details[:reponame], state: 'closed')
+		.map {|issue|
 			{
 				:title     => issue.title,
 				:number    => issue.number,
@@ -234,10 +231,33 @@ end
 
 =end
 
-def recent_closed_issues (tag, issues)
+def closed_since_tag (tag, issues)
 	issues.select {|issue| issue[:closed_at] > tag[:time]}
 end
 
+=begin
+
+	closed_this_release :: Git -> Github -> [Issue],
+	where
+		Issue <- {:title => string, :number => string, :closed_at => number}
+
+	Get all issues closed since the last release.
+
+	@param git. A git object.
+	@param github. A github object.
+
+	@return An array of github issues.
+
+=end
+
+
+def closed_this_release (git, github)
+
+	tags    = list_tags git
+	closed  = list_closed_issues github, get_remote_details(git)
+	closed_since_tag newest_tag(tags), closed
+
+end
 
 
 =begin
@@ -268,7 +288,13 @@ end
 
 
 
+=begin
 
+	validate_args ::
+
+	Check that all the supplied arguments are valid.
+
+=end
 
 def validate_args (args)
 	# todo
@@ -281,14 +307,7 @@ def main (args)
 
 	validate_args args
 
-	github  = github_wrapper
-	git     = git_wrapper
-
-	tags    = list_tags (git)
-	closed  = list_closed_issues github, get_remote_details(git)
-	changed = recent_closed_issues newest_tag(tags), closed
-
-	stringify_issues changed, {
+	stringify_issues closed_this_release(git_wrapper, github_wrapper), {
 
 		:json      => (args["-j"] or args["--json"]),
 		:yaml      => (args["-y"] or args["--yaml"]),
