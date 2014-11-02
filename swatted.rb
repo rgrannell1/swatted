@@ -10,29 +10,6 @@ require "github_api"
 
 =begin
 
-	load_credentials :: string -> { :username => string, :password => string }
-
-	Load github credentials from an external file.
-
-=end
-
-def load_credentials (fpath = File.join(Dir.pwd, ".credentials"))
-
-	contents = IO.readlines(fpath)
-
-	{
-		:username => contents[0].chop,
-		:password => contents[1].chop
-	}
-
-end
-
-
-
-
-
-=begin
-
 	infer_github_details :: string -> { :username => string, :reponame => string }
 
 	Given the path to a local sourcecode repository, infer the username
@@ -66,29 +43,21 @@ end
 
 
 
-=begin
 
-	github_conn :: string x string -> Github
-
-	Create a (possibly authenticated) github instance.
-
-=end
-
-def github_conn(username = "", password = "")
-
-	if username.length * password.length == 0
-		Github.new
-	else
-		Github.new login: credentials[:username], password: credentials[:password]
-	end
-
+def github_conn()
+	Github.new
 end
 
-
-
-
-
 =begin
+
+	git_conn :: string -> Git
+
+	Create a wrapper for a local git repository.
+
+	@param dpath A string. The path to the local repository. Defaults
+	to the current working directory.
+
+	@return A git wrapper.
 
 =end
 
@@ -106,7 +75,7 @@ end
 
 	Return the name, sha id, and creation date of each tag.
 
-	@param git. A connection to a local git repository.
+	@param git. A wrapper for a local git repository.
 
 	@return an array of tags.
 
@@ -127,12 +96,7 @@ def list_tags (git)
 	walker.reset
 
 
-
-
-
-
 	tags_refs = git.references.select {|ref| /refs\/tags\//.match(ref.name)}
-
 	tags_refs.map do |ref|
 
 		target_commit = git.lookup(ref.target.oid).target
@@ -182,7 +146,7 @@ end
 
 	list_closed_issues :: Github x Details -> [Issue],
 	where
-		Github is a github connection.
+		Github is a github wrapper.
 		Details
 		Issue <- {:title => string, :number => string, :closed_at => number}
 
@@ -237,7 +201,7 @@ end
 
 
 def format_issues (issues)
-
+	puts issues
 end
 
 
@@ -252,7 +216,7 @@ def main (args)
 
 	details = infer_github_details git
 
-	tags    = list_tags git, github, details
+	tags    = list_tags git
 	closed  = list_closed_issues github, details
 
 	changed = filter_closed_issues(most_recent_tag(tags), closed)
@@ -260,5 +224,10 @@ def main (args)
 	format_issues changed
 
 end
+
+
+
+
+
 
 main({})
