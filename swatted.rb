@@ -20,11 +20,10 @@ require 'yaml'
 
 def infer_github_details (repo)
 
-	urls = repo.remotes
+	details = repo.remotes
 		.select {|remote| URI.parse(remote.url).host == "github.com"}
 		.map    {|remote| remote.url}
-
-	details = urls.map do |url|
+		.map    {|url|
 
 		parts = url.split(File::SEPARATOR)
 
@@ -32,10 +31,11 @@ def infer_github_details (repo)
 			:username => parts[-2],
 			:reponame => parts[-1].sub(/.git$/, "")
 		}
+	}
 
-	end
+	raise "No github repositories found for #{Dir.pwd}."       if details.length == 0
+	raise "Multiple github repositories found for #{Dir.pwd}." if details.length > 1
 
-	raise "No remote repositories found." if details.length == 0
 	details[0]
 
 end
@@ -161,14 +161,23 @@ end
 
 def list_closed_issues (github, details)
 
-	issues = Github::Client::Issues.new
+	begin
 
-	closed = (issues.list user: details[:username], repo: details[:reponame], state: 'closed').map do |issue|
-		{
-			:title     => issue.title,
-			:number    => issue.number,
-			:closed_at => Date.parse(issue[:closed_at]).to_time.to_i
-		}
+		issues = Github::Client::Issues.new
+
+		closed = (issues.list user: details[:username], repo: details[:reponame], state: 'closed').map do |issue|
+			{
+				:title     => issue.title,
+				:number    => issue.number,
+				:closed_at => Date.parse(issue[:closed_at]).to_time.to_i
+			}
+		end
+
+	rescue Exception => err
+
+		puts "an error occurred while retrieving issues for #{details[:username]}/#{repo: details[:reponame]}:"
+		puts err.message
+
 	end
 
 end

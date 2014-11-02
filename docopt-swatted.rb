@@ -10,15 +10,17 @@ require "./swatted"
 doc = <<DOCOPT
 
 NAME:
-	swatted - list github issues closed since last release.
+	swatted - list github issues closed since the last release.
 
 USAGE:
 	swatted (-j|--json) | (-y|--yaml) | (-p|--pretty) | (-c|--changelog)
 	swatted (-h|--help|--version)
 
 DESCRIPTION:
-	Swatted returns the github issues closed since a given version of
-	a repository.
+	Swatted prints the github issues closed since your last release.
+
+	Optional flags are available to print in machine-readable formats like json and yaml,
+	or to customise the human-readable text printed.
 
 OPTIONS:
 	-j --json              Print matching issues in json format.
@@ -35,8 +37,7 @@ DOCOPT
 
 begin
 
-	args = Docopt::docopt(doc)
-	main(args)
+	main(Docopt::docopt(doc))
 
 rescue Docopt::Exit => e
 
