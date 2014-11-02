@@ -11,14 +11,14 @@ require 'yaml'
 
 =begin
 
-	infer_github_details :: string -> { :username => string, :reponame => string }
+	get_remote_details :: string -> { :username => string, :reponame => string }
 
 	Given the path to a local sourcecode repository, infer the username
 	and reponame used on github as a remote.
 
 =end
 
-def infer_github_details (repo)
+def get_remote_details (repo)
 
 	details = repo.remotes
 		.select {|remote| URI.parse(remote.url).host == "github.com"}
@@ -52,7 +52,18 @@ end
 
 
 def github_wrapper()
-	Github.new
+
+	begin
+		Github.new
+		rescue Exception => err
+
+			puts "an error occurred while creating a github wrapper object"
+			puts err.message
+			exit 1
+
+		end
+	end
+
 end
 
 =begin
@@ -99,6 +110,8 @@ end
 
 def list_tags (git)
 
+	is_tag = /refs\/tags\//
+
 	walker = Rugged::Walker.new(git)
 	walker.push(git.head.target_id)
 
@@ -111,7 +124,7 @@ def list_tags (git)
 
 	walker.reset
 
-	tags_refs = git.references.select {|ref| /refs\/tags\//.match(ref.name)}
+	tags_refs = git.references.select {|ref| is_tag.match(ref.name)}
 	tags_refs.map do |ref|
 
 		target_commit = git.lookup(ref.target.oid).target
@@ -146,16 +159,18 @@ end
 
 def newest_tag (tags)
 
-	most_recent = tags.inject({:time => -1}) {|acc, tag|
-		tag[:time] > acc[:time] ? tag : acc
+	tag = tags.inject({:time => -1}) {|best, tag|
+		tag[:time] > best[:time] ? tag : best
 	}
 
-	if most_recent[:time] == -1
+	if tag[:time] == -1
+
 		puts "no previous releases found for #{Dir.pwd}."
 		exit 1
-	end
 
-	most_recent
+	else
+		tag
+	end
 
 end
 
@@ -183,13 +198,13 @@ def list_closed_issues (github, details)
 
 		issues = Github::Client::Issues.new
 
-		closed = (issues.list user: details[:username], repo: details[:reponame], state: 'closed').map do |issue|
+		closed = (issues.list user: details[:username], repo: details[:reponame], state: 'closed').map {|issue|
 			{
 				:title     => issue.title,
 				:number    => issue.number,
 				:closed_at => Date.parse(issue[:closed_at]).to_time.to_i
 			}
-		end
+		}
 
 	rescue Exception => err
 
@@ -207,7 +222,7 @@ end
 
 =begin
 
-	filter_closed_issues :: Tag x [Issue] -> [Issue],
+	recent_closed_issues :: Tag x [Issue] -> [Issue],
 	where
 		Tag   <- {:sha => string,   :name => string,   :date => number}
 		Issue <- {:title => string, :number => string, :closed_at => number}
@@ -219,12 +234,8 @@ end
 
 =end
 
-def filter_closed_issues (tag, issues)
-
-	issues.select do |issue|
-		issue[:closed_at] > tag[:time]
-	end
-
+def recent_closed_issues (tag, issues)
+	issues.select {|issue| issue[:closed_at] > tag[:time]}
 end
 
 
@@ -235,7 +246,7 @@ end
 	where
 		Issue <- {:title => string, :number => string, :closed_at => number}
 
-	format a list of issues as a human or machine readable string.
+	format a list of issues as a human or machine-readable string.
 
 	@param issues. An array of github issues.
 
@@ -273,9 +284,9 @@ def main (args)
 	github  = github_wrapper
 	git     = git_wrapper
 
-	tags    = list_tags git
-	closed  = list_closed_issues github, infer_github_details(git)
-	changed = filter_closed_issues newest_tag(tags), closed
+	tags    = list_tags (git)
+	closed  = list_closed_issues github, get_remote_details(git)
+	changed = recent_closed_issues newest_tag(tags), closed
 
 	stringify_issues changed, {
 
