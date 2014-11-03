@@ -312,6 +312,7 @@ def main (args)
 
 		:json      => (args["-j"] or args["--json"]),
 		:yaml      => (args["-y"] or args["--yaml"]),
+
 		:changelog => (args["-c"] or args["--changelog"]),
 		:template  => !args["--template"].nil?
 
