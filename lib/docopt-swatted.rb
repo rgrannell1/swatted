@@ -18,20 +18,28 @@ USAGE:
 	swatted (-h|--help|--version)
 
 DESCRIPTION:
+
 	Swatted prints the github issues closed since your last release.
 
-	By default, any tag is considered as pointing to a release, but a
-	regular expression can be supplied to select which tags are released.
-
 OPTIONS:
-	-j --json                   Print matching issues in json format.
-	-y --yaml                   Print matching issues in yaml format.
+	-j --json                   Print matching issues in json format. An empty array is returned
+	                            when no issues are found.
+
+	-y --yaml                   Print matching issues in yaml format. An empty list is returned
+	                            when no issues are found.
+
 	-s --semver                 Should tags matching the semantic versioning standard be assumed to be
-	                            releases?
-	-c --changelog=<template>   Print matching issues in a format that can be used in changelogs.
+	                            releases? If enabled, only tags matching this format are treated as releases,
+	                            and additional tags are ignored.
+
+	-c --changelog              Print matching issues in a format that can be used in change-logs. For example:
+                                "* Closed #3 ('submitting bug report formats hard-drive')".
+
 	--template=<template>       Print issues using a custom template string taking two variables:
 	                            'title' - the issue title - and 'number' - the issue number.
-	--regexp=<pattern>          A regular expression by which to select release tags.
+
+	--regexp=<pattern>          A regular expression for release tags. By default, any tag is considered as
+	                            pointing to a release.
 
 	-h --help --version         Display this documentation.
 

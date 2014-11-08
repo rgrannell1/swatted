@@ -34,10 +34,10 @@ def get_remote_details (repo)
 
 	case details
 	when details.length == 0
-		puts "No github repositories found for #{Dir.pwd}."
+		puts "No github repositories found in #{Dir.pwd}."
 		exit 1
 	when details.length > 1
-		puts "Multiple github repositories found for #{Dir.pwd}."
+		puts "Multiple github repositories found in #{Dir.pwd}."
 		exit 1
 	else
 		details[0]
