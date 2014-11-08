@@ -107,9 +107,10 @@ end
 
 =end
 
-def list_tags (git)
+def list_tags (git, pattern)
 
-	is_tag = /refs\/tags\//
+	is_tag     = /refs\/tags\//
+	is_release = Regexp.new (pattern ||= ".+")
 
 	walker = Rugged::Walker.new(git)
 	walker.push(git.head.target_id)
@@ -125,7 +126,8 @@ def list_tags (git)
 
 	git
 	.references
-	.select {|ref| is_tag.match(ref.name)}
+	.select {|ref| is_tag    .match(ref.name)}
+	.select {|ref| is_release.match(File.basename(ref.name))}
 	.map    {|ref|
 
 		target_commit = git.lookup(ref.target.oid).target
@@ -251,9 +253,9 @@ end
 =end
 
 
-def closed_this_release (git, github)
+def closed_this_release (git, github, pattern)
 
-	tags    = list_tags git
+	tags    = list_tags git, pattern
 	closed  = list_closed_issues github, get_remote_details(git)
 	closed_since_tag newest_tag(tags), closed
 
@@ -308,17 +310,15 @@ def main (args)
 
 	validate_args args
 
-	stringify_issues closed_this_release(git_wrapper, github_wrapper), {
+	stringify_issues closed_this_release(git_wrapper, github_wrapper, args[:regexp]), {
 
 		:json      => (args["-j"] or args["--json"]),
 		:yaml      => (args["-y"] or args["--yaml"]),
 
 		:changelog => (args["-c"] or args["--changelog"]),
-		:template  => !args["--template"].nil?,
-		:pattern   => !args["--regexp"].nil?
-
+		:template  => !args["--template"].nil?
 	},
-	args[:template] ||= "* Closed #%s ('%s')",
-	args[:regexp]   ||= ".+?"
+	args[:template] ||= "* Closed #%s ('%s')"
+
 
 end
