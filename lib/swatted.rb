@@ -314,9 +314,11 @@ def main (args)
 		:yaml      => (args["-y"] or args["--yaml"]),
 
 		:changelog => (args["-c"] or args["--changelog"]),
-		:template  => !args["--template"].nil?
+		:template  => !args["--template"].nil?,
+		:pattern   => !args["--regexp"].nil?
 
 	},
-	args[:template] ||= "* Closed #%s ('%s')"
+	args[:template] ||= "* Closed #%s ('%s')",
+	args[:regexp]   ||= ".+?"
 
 end
