@@ -37,7 +37,7 @@ def get_remote_details (repo)
 		puts "No github repositories found in #{Dir.pwd}."
 		exit 1
 	when details.length > 1
-		puts "Multiple github repositories found in #{Dir.pwd}."
+		puts "Multiple github repositories found inf #{Dir.pwd}."
 		exit 1
 	else
 		details[0]
@@ -276,15 +276,15 @@ end
 
 =end
 
-def stringify_issues (issues, config, template)
+def stringify_issues (issues, config)
 
 	if config[:yaml]
 		puts issues.to_yaml
 	elsif config[:json]
 		puts issues.to_json
-	else config[:changelog] or config[:template] or true
+	else config[:changelog] or true
 		# -- named substitution not working, so ordered substitution for now.
-		puts issues.map { |row| template % [row[:number], row[:title]] }.join("\n")
+		puts issues.map { |row| "* Closed #%s ('%s')" % [row[:number], row[:title]] }.join("\n")
 	end
 
 end
@@ -341,9 +341,7 @@ def main (args)
 		:json      => (args["-j"] or args["--json"]),
 		:yaml      => (args["-y"] or args["--yaml"]),
 
-		:changelog => (args["-c"] or args["--changelog"]),
-		:template  => !args["--template"].nil?
-	},
-	args[:template] ||= "* Closed #%s ('%s')"
+		:changelog => (args["-c"] or args["--changelog"])
+	}
 
 end

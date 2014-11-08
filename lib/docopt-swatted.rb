@@ -11,10 +11,10 @@ require File.join(here, "swatted")
 doc = <<DOCOPT
 
 NAME:
-	swatted - list github issues closed since the last release.
+	swatted v0.1.0 - list github issues closed since the last release.
 
 USAGE:
-	swatted [(-j|--json) | (-y|--yaml) | (-c|--changelog) | (--template=<template>)] [(--regexp=<pattern>) | (-s|--semver)]
+	swatted (-j|--json) | (-y|--yaml) | (-c|--changelog) [(--regexp=<pattern>) | (-s|--semver)]
 	swatted (-h|--help|--version)
 
 DESCRIPTION:
@@ -33,10 +33,7 @@ OPTIONS:
 	                            and additional tags are ignored.
 
 	-c --changelog              Print matching issues in a format that can be used in change-logs. For example:
-                                "* Closed #3 ('submitting bug report formats hard-drive')".
-
-	--template=<template>       Print issues using a custom template string taking two variables:
-	                            'title' - the issue title - and 'number' - the issue number.
+	                            "* Closed #3 ('submitting bug report formats hard-drive')".
 
 	--regexp=<pattern>          A regular expression for release tags. By default, any tag is considered as
 	                            pointing to a release.
