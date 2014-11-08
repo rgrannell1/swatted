@@ -306,11 +306,37 @@ end
 
 
 
+
+=begin
+
+	get_pattern ::
+
+	get the pattern to be used to match release tags.
+
+=end
+
+def release_pattern (args)
+
+	if args["-s"] or args["--semver"]
+		# -- credit to /sindresorhus/semver-regex for the regular expression
+		# -- (it was released under the MIT licence)
+
+		/\bv?(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:-[\da-z\-]+(?:\.[\da-z\-]+)*)?(?:\+[\da-z\-]+(?:\.[\da-z\-]+)*)?\b/
+
+	elsif !args["--regexp"].nil?
+		Regexp.new args["--regexp"]
+	else
+		/.*?/
+	end
+
+end
+
+
 def main (args)
 
 	validate_args args
 
-	stringify_issues closed_this_release(git_wrapper, github_wrapper, args[:regexp]), {
+	stringify_issues closed_this_release(git_wrapper, github_wrapper, release_pattern(args)), {
 
 		:json      => (args["-j"] or args["--json"]),
 		:yaml      => (args["-y"] or args["--yaml"]),
@@ -319,6 +345,5 @@ def main (args)
 		:template  => !args["--template"].nil?
 	},
 	args[:template] ||= "* Closed #%s ('%s')"
-
 
 end
