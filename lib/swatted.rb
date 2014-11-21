@@ -205,6 +205,11 @@ def list_closed_issues (github, details)
 			}
 		}
 
+	rescue Github::Error::NotFound => err
+
+		puts "issues not found for #{details[:username]}/#{details[:reponame]}:"
+		exit 1
+
 	rescue Exception => err
 
 		puts "an error occurred while retrieving issues for #{details[:username]}/#{details[:reponame]}:"

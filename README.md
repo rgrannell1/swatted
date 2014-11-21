@@ -13,6 +13,14 @@ Swatted can output recently closed issues in machine-consumable formats, or auto
 wget -q -O - https://raw.githubusercontent.com/rgrannell1/swatted/master/install.sh | bash
 ```
 
+To upgrade run
+
+```bash
+here=$(pwd)
+rm -rf swatted
+git clone https://github.com/rgrannell1/swatted.git
+```
+
 ## Usage
 
 ```bash
