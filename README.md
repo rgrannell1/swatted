@@ -1,5 +1,5 @@
 
-# swatted
+# swatted v0.1.0
 
 List all the bugs you've swatted since your last release.
 
