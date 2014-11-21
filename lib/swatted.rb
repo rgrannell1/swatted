@@ -129,13 +129,13 @@ def list_tags (git, pattern)
 		walker.push(git.head.target_id)
 
 	rescue Rugged::ReferenceError => err
-		# -- there are likely no commits in the repo.
+		# -- there are likely no commits in the repo,
+		# -- and no HEAD reference. Say there are no tags.
 
-		return []
+		return [ ]
 
 	rescue Exception => err
 
-		puts "an error occurred while traversing github issues."
 		puts err.message
 		exit 1
 
