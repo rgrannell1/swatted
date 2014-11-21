@@ -32,16 +32,21 @@ def get_remote_details (repo)
 			}
 	}
 
-	case details
-	when details.length == 0
-		puts "No github repositories found in #{Dir.pwd}."
+	if details.length === 0
+
+		puts "No github repositories linked to #{Dir.pwd}"
 		exit 1
-	when details.length > 1
-		puts "Multiple github repositories found inf #{Dir.pwd}."
-		exit 1
-	else
-		details[0]
+
 	end
+
+	if details.length > 1
+
+		puts "Multiple github repositories linked to #{Dir.pwd}"
+		exit 1
+
+	end
+
+	details[0]
 
 end
 
@@ -81,11 +86,17 @@ def git_wrapper (dpath = Dir.pwd)
 
 	begin
 		Rugged::Repository.new(dpath)
+
+	rescue Rugged::RepositoryError => err
+
+		puts "could not find repository at #{dpath}"
+		exit 1
+
 	rescue Exception => err
 
-			puts "an error occurred while opening .git repository for #{dpath}"
-			puts err.message
-			exit 1
+		puts "an error occurred while opening .git repository for #{dpath}"
+		puts err.message
+		exit 1
 
 	end
 
@@ -112,8 +123,23 @@ def list_tags (git, pattern)
 	is_tag     = /refs\/tags\//
 	is_release = Regexp.new (pattern ||= ".+")
 
-	walker = Rugged::Walker.new(git)
-	walker.push(git.head.target_id)
+	begin
+
+		walker = Rugged::Walker.new(git)
+		walker.push(git.head.target_id)
+
+	rescue Rugged::ReferenceError => err
+		# -- there are likely no commits in the repo.
+
+		return []
+
+	rescue Exception => err
+
+		puts "an error occurred while traversing github issues."
+		puts err.message
+		exit 1
+
+	end
 
 	commits = walker.map do |commit|
 		{
